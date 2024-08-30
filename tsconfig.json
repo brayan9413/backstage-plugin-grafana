@@ -1,8 +1,14 @@
 {
   "extends": "@backstage/cli/config/tsconfig.json",
-  "include": ["src", "dev"],
+  "include": [
+    "src",
+    "dev"
+  ],
   "compilerOptions": {
     "outDir": "dist-types",
-    "incremental": false
+    "incremental": false,
+    "declaration": true,
+    "declarationDir": "dist-types",
+    "emitDeclarationOnly": true
   }
 }
