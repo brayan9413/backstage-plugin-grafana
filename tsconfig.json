@@ -7,8 +7,9 @@
   "compilerOptions": {
     "outDir": "dist-types",
     "incremental": false,
-    "declaration": true,
-    "declarationDir": "dist-types",
-    "emitDeclarationOnly": true
+    "lib": [
+      "es2020",
+      "dom"
+    ]
   }
 }
