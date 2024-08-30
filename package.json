@@ -27,7 +27,8 @@
     "test": "backstage-cli package test",
     "clean": "backstage-cli package clean",
     "prepack": "backstage-cli package prepack",
-    "postpack": "backstage-cli package postpack"
+    "postpack": "backstage-cli package postpack",
+    "prepare": "backstage-cli package build"
   },
   "dependencies": {
     "@backstage/catalog-model": "^1.2.1",
