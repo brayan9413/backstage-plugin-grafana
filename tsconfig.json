@@ -1,9 +1,14 @@
 {
   "extends": "@backstage/cli/config/tsconfig.json",
-  "include": ["src", "dev"],
+  "include": [
+    "src",
+    "dev"
+  ],
   "compilerOptions": {
-    "outDir": "dist-types",
+    "outDir": "dist",
     "incremental": false,
+    "declaration": true,
+    "declarationDir": "dist-types",
     "lib": [
       "es2020",
       "dom"
