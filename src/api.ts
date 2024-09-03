@@ -49,12 +49,12 @@ interface AlertRule {
 type UnifiedAlertState = 'Normal' | 'Pending' | 'Alerting' | 'NoData' | 'Error' | 'n/a';
 
 interface AlertInstance {
-  labels: Record<string,string>;
+  labels: Record<string, string>;
   state: UnifiedAlertState;
 }
 
 interface AlertsData {
-  data: { alerts: AlertInstance[]};
+  data: { alerts: AlertInstance[] };
 }
 
 export const grafanaApiRef = createApiRef<GrafanaApi>({
@@ -137,6 +137,7 @@ class Client {
       ...dashboard,
       url: domain + dashboard.url,
       folderUrl: domain + dashboard.folderUrl,
+      folderTitle: dashboard.folderTitle ?? '',
     }));
   }
 
@@ -199,7 +200,7 @@ export class UnifiedAlertingGrafanaApiClient implements GrafanaApi {
   }
 
   async alertsForSelectors(selectors: string | string[]): Promise<Alert[]> {
-    const labelSelectors = Array.from(selectors);
+    const labelSelectors = Array.isArray(selectors) ? selectors : [selectors];
 
     const rulesResponse = await this.client.fetch<Record<string, AlertRuleGroupConfig[]>>('/api/ruler/grafana/api/v1/rules');
     const rules = Object.values(rulesResponse).flat().map(ruleGroup => ruleGroup.rules).flat();
@@ -210,12 +211,12 @@ export class UnifiedAlertingGrafanaApiClient implements GrafanaApi {
 
       const matchingRules = rules.filter(rule => rule.labels && rule.labels[label] === labelValue);
       const alertInstances = alertsResponse.data.alerts.filter(alertInstance => alertInstance.labels[label] === labelValue);
-  
+
       return matchingRules.map(rule => {
         const matchingAlertInstances = alertInstances.filter(
           alertInstance => alertInstance.labels.alertname === rule.grafana_alert.title
         );
-  
+
         const aggregatedAlertStates = matchingAlertInstances.reduce(
           (previous, alert) => {
             switch (alert.state) {
@@ -237,18 +238,18 @@ export class UnifiedAlertingGrafanaApiClient implements GrafanaApi {
               default:
                 previous.invalid += 1;
             }
-      
+
             return previous;
           },
           { normal: 0, pending: 0, alerting: 0, noData: 0, error: 0, invalid: 0 },
-        );      
-  
+        );
+
         return {
           name: rule.grafana_alert.title,
           url: `${this.domain}/alerting/grafana/${rule.grafana_alert.uid}/view`,
           state: this.getState(aggregatedAlertStates, matchingAlertInstances.length),
         };
-      })
+      });
     }).flat();
   }
 
@@ -271,7 +272,7 @@ export class UnifiedAlertingGrafanaApiClient implements GrafanaApi {
       return 'NoData'
     } else if (states.normal === totalAlerts || states.normal + states.noData === totalAlerts) {
       return 'Normal'
-    } 
+    }
 
     return 'n/a'
   }
